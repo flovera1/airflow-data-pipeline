@@ -38,7 +38,7 @@ stage_events = StageToRedshiftOperator(
     aws_credentials_id='aws_credentials',
     table='staging_events',
     s3_bucket=S3_BUCKET,
-    s3_key='log-data',
+    s3_key='log-data/{execution_date.year}/{execution_date.month}',
     json_path=LOG_JSON_PATH,
     dag=dag
 )
@@ -103,8 +103,10 @@ run_quality_checks = DataQualityOperator(
     redshift_conn_id='redshift',
     tests=[
         {"check_sql": "SELECT COUNT(*) FROM songplays", "expected_result": 0, "comparison": "greater_than"},
-        {"check_sql": "SELECT COUNT(*) FROM users WHERE userid IS NULL", "expected_result": 0, "comparison": "equal"}
-    ],
+        {"check_sql": "SELECT COUNT(*) FROM users WHERE userid IS NULL", "expected_result": 0},
+        {"check_sql": "SELECT COUNT(*) FROM songs WHERE song_id IS NULL", "expected_result": 0},
+        {"check_sql": "SELECT COUNT(DISTINCT songplay_id) FROM songplays", "expected_result": 0, "comparison": "greater_than"}
+    ]
     dag=dag
 )
 

@@ -20,17 +20,28 @@ class StageToRedshiftOperator(BaseOperator):
         credentials = aws_hook.get_credentials()
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
-        redshift.run(f"DELETE FROM {self.table}")
+        self.log.info(f"Starting load for table: {self.table}")
 
-        s3_path = f"s3://{self.s3_bucket}/{self.s3_key}"
+        try:
+            redshift.run(f"DELETE FROM {self.table}")
+            self.log.info(f"Cleared table: {self.table}")
 
-        copy_sql = f"""
-        COPY {self.table}
-        FROM '{s3_path}'
-        ACCESS_KEY_ID '{credentials.access_key}'
-        SECRET_ACCESS_KEY '{credentials.secret_key}'
-        FORMAT AS JSON '{self.json_path}'
-        REGION 'us-west-2';
-        """
+            s3_path = f"s3://{self.s3_bucket}/{self.s3_key.format(**context)}"
 
-        redshift.run(copy_sql)
+            copy_sql = f"""
+            COPY {self.table}
+            FROM '{s3_path}'
+            ACCESS_KEY_ID '{credentials.access_key}'
+            SECRET_ACCESS_KEY '{credentials.secret_key}'
+            FORMAT AS JSON '{self.json_path}'
+            REGION 'us-west-2';
+            """
+
+            self.log.info(f"Copying data from {s3_path}")
+            redshift.run(copy_sql)
+
+            self.log.info(f"Finished loading {self.table}")
+
+        except Exception as e:
+            self.log.error(f"Error loading {self.table}: {e}")
+            raise

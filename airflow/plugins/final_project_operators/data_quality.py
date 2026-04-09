@@ -14,11 +14,16 @@ class DataQualityOperator(BaseOperator):
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
         for test in self.tests:
-            result = redshift.get_first(test["check_sql"])[0]
+            sql = test["check_sql"]
+            expected = test["expected_result"]
+            comparison = test.get("comparison", "equal")
 
-            if test.get("comparison") == "greater_than":
-                if result <= test["expected_result"]:
-                    raise ValueError("Data quality check failed")
-            else:
-                if result != test["expected_result"]:
-                    raise ValueError("Data quality check failed")
+            result = redshift.get_first(sql)[0]
+
+            self.log.info(f"Running check: {sql} | Result: {result}")
+
+            if comparison == "greater_than" and result <= expected:
+                raise ValueError(f"Check failed: {sql}")
+
+            if comparison == "equal" and result != expected:
+                raise ValueError(f"Check failed: {sql}")
