@@ -32,7 +32,7 @@ dag = DAG(
     catchup=False
 )
 
-start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
+start_operator = EmptyOperator(task_id='Begin_execution', dag=dag)
 
 stage_events = StageToRedshiftOperator(
     task_id='Stage_events',
@@ -112,7 +112,7 @@ run_quality_checks = DataQualityOperator(
     dag=dag
 )
 
-end_operator = DummyOperator(task_id='Stop_execution', dag=dag)
+end_operator = EmptyOperator(task_id='Stop_execution', dag=dag)
 
 start_operator >> [stage_events, stage_songs]
 [stage_events, stage_songs] >> load_songplays

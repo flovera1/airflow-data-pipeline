@@ -6,6 +6,8 @@ class DataQualityOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self, redshift_conn_id="", tests=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # ADD THIS
+        self.redshift_conn_id = redshift_conn_id  # ADD THIS
         self.tests = tests or []
 
     def execute(self, context):
@@ -26,5 +28,5 @@ class DataQualityOperator(BaseOperator):
             if comparison == "equal" and result != expected:
                 raise ValueError(f"Check failed: {sql}")
 
-            elif comparison not in ["greater_than", "equal"]:
+            if comparison not in ["greater_than", "equal"]:
                 raise ValueError(f"Invalid comparison type: {comparison}")
