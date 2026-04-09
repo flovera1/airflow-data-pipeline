@@ -106,7 +106,7 @@ run_quality_checks = DataQualityOperator(
         {"check_sql": "SELECT COUNT(*) FROM users WHERE userid IS NULL", "expected_result": 0},
         {"check_sql": "SELECT COUNT(*) FROM songs WHERE song_id IS NULL", "expected_result": 0},
         {"check_sql": "SELECT COUNT(DISTINCT songplay_id) FROM songplays", "expected_result": 0, "comparison": "greater_than"}
-    ]
+    ],
     dag=dag
 )
 
