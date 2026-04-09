@@ -12,16 +12,20 @@ from airflow.plugins.final_project_operators import DataQualityOperator
 
 
 from udacity.common.final_project_sql_statements import SqlQueries
+from datetime import datetime, timedelta
 
 S3_BUCKET = Variable.get("s3_bucket", default_var="")
 LOG_JSON_PATH = Variable.get("log_json_path", default_var="")
 
+
+
 default_args = {
     'owner': 'udacity',
     'depends_on_past': False,
-    'start_date': datetime(2018, 1, 1),
+    'start_date': datetime(2023, 1, 1),
     'retries': 3,
     'retry_delay': timedelta(minutes=5),
+    'catchup': False,
     'email_on_retry': False
 }
 
