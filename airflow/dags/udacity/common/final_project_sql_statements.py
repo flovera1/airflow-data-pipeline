@@ -17,8 +17,8 @@ class SqlQueries:
         ) events
         LEFT JOIN staging_songs songs
             ON events.song = songs.title
-        LEFT JOIN staging_songs artists
-            ON songs.artist_name = artists.artist_name
+        LEFT JOIN staging_artists artists
+            ON songs.artist_id = artists.artist_id
     """)
 
     user_table_insert = ("""

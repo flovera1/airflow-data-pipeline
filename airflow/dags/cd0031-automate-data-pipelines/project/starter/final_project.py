@@ -1,18 +1,20 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.operators.dummy import DummyOperator
+from airflow.operators.dummy import EmptyOperator 
 from airflow.models import Variable
 
-from final_project_operators import StageToRedshiftOperator
-from final_project_operators import LoadFactOperator
-from final_project_operators import LoadDimensionOperator
-from final_project_operators import DataQualityOperator
+
+from airflow.plugins.final_project_operators import StageToRedshiftOperator
+from airflow.plugins.final_project_operators import LoadFactOperator
+from airflow.plugins.final_project_operators import LoadDimensionOperator
+from airflow.plugins.final_project_operators import DataQualityOperator
+
 
 from udacity.common.final_project_sql_statements import SqlQueries
 
-S3_BUCKET = Variable.get("s3_bucket")
-LOG_JSON_PATH = Variable.get("log_json_path")
+S3_BUCKET = Variable.get("s3_bucket", default_var="")
+LOG_JSON_PATH = Variable.get("log_json_path", default_var="")
 
 default_args = {
     'owner': 'udacity',
